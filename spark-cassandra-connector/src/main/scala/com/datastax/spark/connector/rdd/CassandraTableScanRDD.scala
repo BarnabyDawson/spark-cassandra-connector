@@ -267,7 +267,10 @@ class CassandraTableScanRDD[R] private[connector](
         clusteringOrder = clusteringOrder,
         readConf = readConf)
 
-    counts.reduce(_ + _)
+    limit match {
+      case None => counts.reduce(_ + _)
+      case Some(lim) => Math.min(lim, counts.reduce(_ + _))
+    }
   }
 }
 
