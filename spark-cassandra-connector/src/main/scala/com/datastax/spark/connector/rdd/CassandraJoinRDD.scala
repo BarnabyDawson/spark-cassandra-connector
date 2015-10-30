@@ -109,7 +109,12 @@ class CassandraJoinRDD[L, R] private[connector](
         clusteringOrder = clusteringOrder,
         readConf= readConf)
 
-    counts.map(_._2).reduce(_ + _)
+    val reportedTotal = counts.map(_._2).reduce(_ + _)
+    
+    limit match {
+      case None => reportedTotal
+      case Some(lim) => Math.min(lim, reportedTotal)
+    }
   }
 
   /** This method will create the RowWriter required before the RDD is serialized.
